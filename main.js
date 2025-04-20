@@ -56,7 +56,7 @@ maps.forEach(map => {
 
 // Modal functions
 function openModal(map) {
-    modalTitle.textContent = `${map.name} Callouts`;
+    //modalTitle.textContent = `${map.name} Callouts`;
     modalImage.src = map.image;
     modalImage.alt = `${map.name} callouts`;
     currentMapName = map.name;
@@ -91,14 +91,17 @@ function openModal(map) {
 }
 
 function getScaledCoordinates(e, rect) {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+        x: clientX - rect.left,
+        y: clientY - rect.top
     };
 }
 
 // Drawing functions
 function startDrawing(e) {
+    e.preventDefault(); // Prevent scrolling on touch devices
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
     const coords = getScaledCoordinates(e, rect);
@@ -141,11 +144,22 @@ function stopDrawing() {
     isDrawing = false;
 }
 
-// Event listeners
+// Event listeners for both mouse and touch events
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mouseout', stopDrawing);
+
+// Add touch event listeners
+canvas.addEventListener('touchstart', startDrawing);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('touchcancel', stopDrawing);
+
+// Prevent default touch behavior to avoid scrolling while drawing
+canvas.addEventListener('touchstart', (e) => e.preventDefault());
+canvas.addEventListener('touchmove', (e) => e.preventDefault());
+canvas.addEventListener('touchend', (e) => e.preventDefault());
 
 // Tool button events
 drawButton.addEventListener('click', () => {
