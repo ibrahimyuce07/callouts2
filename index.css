@@ -10,6 +10,13 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --primary: #646cff;
+  --primary-hover: #535bf2;
+  --background: #13151a;
+  --card-bg: #1a1b26;
+  --text: #ffffff;
+  --border-radius: 12px;
 }
 
 * {
@@ -27,13 +34,53 @@ a:hover {
   color: #535bf2;
 }
 
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--card-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.header-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--text);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
   font-family: Arial, sans-serif;
-  background-color: #1a1a1a;
+  background-color: var(--background);
   padding: 2rem;
+  color: var(--text);
+  padding-top: 80px; /* Adjusted for fixed header */
 }
 
 img {
@@ -71,25 +118,29 @@ button:focus-visible {
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
 }
 
 .map-card {
-  background: #2a2a2a;
-  border-radius: 8px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 3px solid #404040; /* Darker passive border */
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .map-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(100, 108, 255, 0.2);
+  border-color: var(--primary);
 }
 
 .map-card.active {
-  border-color: #45a049; /* Darker green border for active maps */
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.3);
 }
 
 .map-card img {
@@ -116,12 +167,13 @@ button:focus-visible {
   align-items: center;
   padding: 1rem;
   z-index: 1000;
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
-  background: #2a2a2a;
+  background: var(--card-bg);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   width: 95%;
   height: 95vh;
   display: flex;
@@ -130,6 +182,8 @@ button:focus-visible {
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h2 {
@@ -150,23 +204,24 @@ button:focus-visible {
   position: absolute;
   right: 1rem;
   top: 1rem;
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   font-size: 2rem;
   cursor: pointer;
   color: #e1e1e1;
   padding: 0.5rem;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .close-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
 }
 
 .canvas-container {
@@ -199,30 +254,36 @@ button:focus-visible {
   bottom: 0;
   display: flex;
   gap: 1rem;
-  padding: 1rem;
-  background: #1a1a1a;
-  border-radius: 8px;
+  padding: 1.5rem;
+  background: rgba(26, 27, 38, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
   margin-top: 1rem;
   width: 100%;
   justify-content: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .tool-button {
-  background: #2a2a2a;
-  color: #e1e1e1;
-  border: 1px solid #404040;
-  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .tool-button:hover {
-  background: #404040;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .tool-button.active {
-  background: #45a049;
-  border-color: #45a049;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 #colorPicker {
@@ -237,6 +298,7 @@ button:focus-visible {
 #brushSize {
   width: 100px;
   cursor: pointer;
+  accent-color: var(--primary);
 }
 
 .active-users {
@@ -265,6 +327,42 @@ button:focus-visible {
 .user-name {
   color: #e1e1e1;
   font-size: 0.9rem;
+}
+
+.footer {
+  background: var(--card-bg);
+  padding: 2rem;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-text {
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.footer-links a {
+  color: var(--text);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+  color: var(--primary);
 }
 
 @media (prefers-color-scheme: light) {
