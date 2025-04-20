@@ -33,133 +33,7 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const clearButton = document.getElementById('clearButton');
 
-// Session and routing handling - temporarily disabled
-/*
-const baseUrl = window.location.hostname === 'ibrahimyuce07.github.io' ? '/callouts2' : '';
-const cleanPath = window.location.pathname.replace(baseUrl, '');
-const sessionId = cleanPath.substring(1);
-
-// Redirect to new session if no sessionId, considering the base path
-if (!sessionId || sessionId === 'callouts2') {
-    const newSession = crypto.randomUUID();
-    window.location.href = `${baseUrl}/${newSession}`;
-}
-
-// WebSocket setup
-const isSecure = window.location.protocol === 'https:';
-const wsProtocol = isSecure ? 'wss:' : 'ws:';
-const hostname = window.location.hostname;
-
-// Use a dedicated WebSocket server for production
-const wsHost = hostname === 'ibrahimyuce07.github.io' ? 
-    'wss://your-websocket-server.com' :  // Replace with your WebSocket server URL
-    hostname === 'calloutscs2.netlify.app' ? 
-    'wss://your-websocket-server.com' :  // Replace with your WebSocket server URL
-    `${wsProtocol}//${window.location.host}`;
-
-const ws = new WebSocket(`${wsHost}/${sessionId}`);
-*/
 let userColor = '#ff0000';
-
-// Add active users container to drawing controls - temporarily disabled
-/*
-const activeUsersContainer = document.createElement('div');
-activeUsersContainer.className = 'active-users';
-document.querySelector('.drawing-controls').appendChild(activeUsersContainer);
-
-// Track active users
-const activeUsers = new Map();
-let userCount = 0;
-
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    
-    switch (data.type) {
-        case 'color':
-            userColor = data.color;
-            colorPicker.value = userColor;
-            ctx.strokeStyle = userColor;
-            addActiveUser('You', userColor);
-            break;
-            
-        case 'user_joined':
-            userCount++;
-            addActiveUser(`User ${userCount}`, data.color);
-            break;
-            
-        case 'user_left':
-            removeUserByColor(data.color);
-            break;
-            
-        case 'draw':
-            if (data.mapName === currentMapName) {
-                const currentStyle = ctx.strokeStyle;
-                ctx.strokeStyle = data.color;
-                
-                ctx.beginPath();
-                ctx.moveTo(data.startX, data.startY);
-                ctx.lineTo(data.endX, data.endY);
-                ctx.stroke();
-                
-                ctx.strokeStyle = currentStyle;
-            }
-            
-            // Store the drawing
-            const drawings = mapDrawings.get(data.mapName) || [];
-            drawings.push(data);
-            mapDrawings.set(data.mapName, drawings);
-            break;
-            
-        case 'clear':
-            if (data.mapName === currentMapName) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-            mapDrawings.delete(data.mapName);
-            break;
-            
-        case 'load_drawing':
-            // Load existing drawings for a map
-            mapDrawings.set(data.mapName, data.drawingData);
-            if (data.mapName === currentMapName) {
-                data.drawingData.forEach(drawing => {
-                    ctx.strokeStyle = drawing.color;
-                    ctx.beginPath();
-                    ctx.moveTo(drawing.startX, drawing.startY);
-                    ctx.lineTo(drawing.endX, drawing.endY);
-                    ctx.stroke();
-                });
-                ctx.strokeStyle = userColor;
-            }
-            break;
-    }
-};
-*/
-
-function addActiveUser(name, color) {
-    // Temporarily disabled
-    /*
-    const userDiv = document.createElement('div');
-    userDiv.className = 'active-user';
-    userDiv.innerHTML = `
-        <span class="user-color" style="background-color: ${color}"></span>
-        <span class="user-name">${name}</span>
-    `;
-    activeUsers.set(color, userDiv);
-    activeUsersContainer.appendChild(userDiv);
-    */
-}
-
-function removeUserByColor(color) {
-    // Temporarily disabled
-    /*
-    const userDiv = activeUsers.get(color);
-    if (userDiv) {
-        userDiv.remove();
-        activeUsers.delete(color);
-    }
-    */
-}
-
 let isDrawing = false;
 let currentX = 0;
 let currentY = 0;
@@ -259,11 +133,6 @@ function draw(e) {
     drawings.push(drawingData);
     mapDrawings.set(currentMapName, drawings);
 
-    // Broadcast to other users
-    /*
-    ws.send(JSON.stringify(drawingData));
-    */
-
     currentX = coords.x;
     currentY = coords.y;
 }
@@ -297,12 +166,6 @@ brushSize.addEventListener('input', (e) => {
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     mapDrawings.delete(currentMapName);
-    /*
-    ws.send(JSON.stringify({
-        type: 'clear',
-        mapName: currentMapName
-    }));
-    */
 });
 
 // Add share button to controls
