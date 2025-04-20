@@ -2,12 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CS2 Map Callouts</title>
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="mapGrid" class="map-grid"></div>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal-overlay">
+      <div class="modal-content">
+        <button id="closeModal" class="close-button">&times;</button>
+        <h2 id="modalTitle"></h2>
+        <img id="modalImage" alt="">
+      </div>
+    </div>
+
+    <script src="main.js"></script>
   </body>
 </html>
