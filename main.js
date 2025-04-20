@@ -35,8 +35,15 @@ const clearButton = document.getElementById('clearButton');
 
 // WebSocket setup
 const sessionId = window.location.pathname.substring(1);
-const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const ws = new WebSocket(`${protocol}//${window.location.host}/${sessionId}`);
+const isSecure = window.location.protocol === 'https:';
+const wsProtocol = isSecure ? 'wss:' : 'ws:';
+const hostname = window.location.hostname;
+const wsHost = isSecure ? 
+    (hostname === 'ibrahimyuce07.github.io' ? 'wss://ibrahimyuce07.github.io' : 
+     hostname === 'calloutscs2.netlify.app' ? 'wss://calloutscs2.netlify.app' : 
+     window.location.host) : 
+    window.location.host;
+const ws = new WebSocket(`${wsProtocol}//${wsHost}/${sessionId}`);
 let userColor = '#ff0000';
 
 // Add active users container to drawing controls
@@ -215,7 +222,7 @@ function draw(e) {
 
     ctx.beginPath();
     ctx.moveTo(currentX, currentY);
-    ctx.lineTo(coords.x, coords.y);
+    ctx.lineTo(coords.x, currentY);
     ctx.stroke();
 
     // Store drawing data
