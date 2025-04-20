@@ -33,9 +33,112 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const clearButton = document.getElementById('clearButton');
 
+// WebSocket setup
+const sessionId = window.location.pathname.substring(1);
+const ws = new WebSocket(`ws://${window.location.host}/${sessionId}`);
+let userColor = '#ff0000';
+
+// Add active users container to drawing controls
+const activeUsersContainer = document.createElement('div');
+activeUsersContainer.className = 'active-users';
+document.querySelector('.drawing-controls').appendChild(activeUsersContainer);
+
+// Track active users
+const activeUsers = new Map();
+let userCount = 0;
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    switch (data.type) {
+        case 'color':
+            userColor = data.color;
+            colorPicker.value = userColor;
+            ctx.strokeStyle = userColor;
+            addActiveUser('You', userColor);
+            break;
+            
+        case 'user_joined':
+            userCount++;
+            addActiveUser(`User ${userCount}`, data.color);
+            break;
+            
+        case 'user_left':
+            removeUserByColor(data.color);
+            break;
+            
+        case 'draw':
+            if (data.mapName === currentMapName) {
+                const currentStyle = ctx.strokeStyle;
+                ctx.strokeStyle = data.color;
+                
+                ctx.beginPath();
+                ctx.moveTo(data.startX, data.startY);
+                ctx.lineTo(data.endX, data.endY);
+                ctx.stroke();
+                
+                ctx.strokeStyle = currentStyle;
+            }
+            
+            // Store the drawing
+            const drawings = mapDrawings.get(data.mapName) || [];
+            drawings.push(data);
+            mapDrawings.set(data.mapName, drawings);
+            break;
+            
+        case 'clear':
+            if (data.mapName === currentMapName) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            mapDrawings.delete(data.mapName);
+            break;
+            
+        case 'load_drawing':
+            // Load existing drawings for a map
+            mapDrawings.set(data.mapName, data.drawingData);
+            if (data.mapName === currentMapName) {
+                data.drawingData.forEach(drawing => {
+                    ctx.strokeStyle = drawing.color;
+                    ctx.beginPath();
+                    ctx.moveTo(drawing.startX, drawing.startY);
+                    ctx.lineTo(drawing.endX, drawing.endY);
+                    ctx.stroke();
+                });
+                ctx.strokeStyle = userColor;
+            }
+            break;
+    }
+};
+
+function addActiveUser(name, color) {
+    const userDiv = document.createElement('div');
+    userDiv.className = 'active-user';
+    userDiv.innerHTML = `
+        <span class="user-color" style="background-color: ${color}"></span>
+        <span class="user-name">${name}</span>
+    `;
+    activeUsers.set(color, userDiv);
+    activeUsersContainer.appendChild(userDiv);
+}
+
+function removeUserByColor(color) {
+    const userDiv = activeUsers.get(color);
+    if (userDiv) {
+        userDiv.remove();
+        activeUsers.delete(color);
+    }
+}
+
+// Redirect to new session if no sessionId
+if (!sessionId) {
+    window.location.href = '/new';
+}
+
 let isDrawing = false;
 let currentX = 0;
 let currentY = 0;
+let currentMapName = '';
+const mapDrawings = new Map();
 
 // Create map cards
 maps.forEach(map => {
@@ -53,9 +156,10 @@ maps.forEach(map => {
 
 // Modal functions
 function openModal(map) {
-    //modalTitle.textContent = `${map.name} Callouts`;
+    modalTitle.textContent = `${map.name} Callouts`;
     modalImage.src = map.image;
     modalImage.alt = `${map.name} callouts`;
+    currentMapName = map.name;
     modalOverlay.style.display = 'flex';
     
     // Reset canvas size when modal opens
@@ -67,6 +171,22 @@ function openModal(map) {
         ctx.lineCap = 'round';
         drawButton.classList.add('active');
         canvas.classList.add('active');
+        
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Redraw saved drawings for this map
+        const drawings = mapDrawings.get(currentMapName) || [];
+        drawings.forEach(drawing => {
+            ctx.strokeStyle = drawing.color;
+            ctx.beginPath();
+            ctx.moveTo(drawing.startX, drawing.startY);
+            ctx.lineTo(drawing.endX, drawing.endY);
+            ctx.stroke();
+        });
+        
+        // Reset to current user's color
+        ctx.strokeStyle = userColor;
     };
 }
 
@@ -97,6 +217,25 @@ function draw(e) {
     ctx.lineTo(coords.x, coords.y);
     ctx.stroke();
 
+    // Store drawing data
+    const drawingData = {
+        type: 'draw',
+        startX: currentX,
+        startY: currentY,
+        endX: coords.x,
+        endY: coords.y,
+        color: ctx.strokeStyle,
+        mapName: currentMapName
+    };
+
+    // Store locally
+    const drawings = mapDrawings.get(currentMapName) || [];
+    drawings.push(drawingData);
+    mapDrawings.set(currentMapName, drawings);
+
+    // Broadcast to other users
+    ws.send(JSON.stringify(drawingData));
+
     currentX = coords.x;
     currentY = coords.y;
 }
@@ -117,8 +256,10 @@ drawButton.addEventListener('click', () => {
     canvas.classList.toggle('active');
 });
 
+// Update color picker to broadcast color changes
 colorPicker.addEventListener('change', (e) => {
     ctx.strokeStyle = e.target.value;
+    userColor = e.target.value;
 });
 
 brushSize.addEventListener('input', (e) => {
@@ -127,7 +268,24 @@ brushSize.addEventListener('input', (e) => {
 
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    mapDrawings.delete(currentMapName);
+    ws.send(JSON.stringify({
+        type: 'clear',
+        mapName: currentMapName
+    }));
 });
+
+// Add share button to controls
+const shareButton = document.createElement('button');
+shareButton.textContent = 'Share Link';
+shareButton.className = 'tool-button';
+shareButton.onclick = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+        .then(() => alert('Link copied to clipboard!'))
+        .catch(() => alert('Failed to copy link'));
+};
+document.querySelector('.drawing-controls').appendChild(shareButton);
 
 // Close modal events
 closeButton.addEventListener('click', () => {
