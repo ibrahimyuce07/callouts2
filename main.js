@@ -33,17 +33,30 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const clearButton = document.getElementById('clearButton');
 
+// Session and routing handling
+const baseUrl = window.location.hostname === 'ibrahimyuce07.github.io' ? '/callouts2' : '';
+const cleanPath = window.location.pathname.replace(baseUrl, '');
+const sessionId = cleanPath.substring(1);
+
+// Redirect to new session if no sessionId, considering the base path
+if (!sessionId || sessionId === 'callouts2') {
+    const newSession = crypto.randomUUID();
+    window.location.href = `${baseUrl}/${newSession}`;
+}
+
 // WebSocket setup
-const sessionId = window.location.pathname.substring(1);
 const isSecure = window.location.protocol === 'https:';
 const wsProtocol = isSecure ? 'wss:' : 'ws:';
 const hostname = window.location.hostname;
-const wsHost = isSecure ? 
-    (hostname === 'ibrahimyuce07.github.io' ? 'wss://ibrahimyuce07.github.io' : 
-     hostname === 'calloutscs2.netlify.app' ? 'wss://calloutscs2.netlify.app' : 
-     window.location.host) : 
-    window.location.host;
-const ws = new WebSocket(`${wsProtocol}//${wsHost}/${sessionId}`);
+
+// Use a dedicated WebSocket server for production
+const wsHost = hostname === 'ibrahimyuce07.github.io' ? 
+    'wss://your-websocket-server.com' :  // Replace with your WebSocket server URL
+    hostname === 'calloutscs2.netlify.app' ? 
+    'wss://your-websocket-server.com' :  // Replace with your WebSocket server URL
+    `${wsProtocol}//${window.location.host}`;
+
+const ws = new WebSocket(`${wsHost}/${sessionId}`);
 let userColor = '#ff0000';
 
 // Add active users container to drawing controls
@@ -137,11 +150,6 @@ function removeUserByColor(color) {
     }
 }
 
-// Redirect to new session if no sessionId
-if (!sessionId) {
-    window.location.href = '/new';
-}
-
 let isDrawing = false;
 let currentX = 0;
 let currentY = 0;
@@ -222,7 +230,7 @@ function draw(e) {
 
     ctx.beginPath();
     ctx.moveTo(currentX, currentY);
-    ctx.lineTo(coords.x, currentY);
+    ctx.lineTo(coords.x, coords.y);  // Update both X and Y coordinates
     ctx.stroke();
 
     // Store drawing data
