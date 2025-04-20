@@ -33,7 +33,8 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const clearButton = document.getElementById('clearButton');
 
-// Session and routing handling
+// Session and routing handling - temporarily disabled
+/*
 const baseUrl = window.location.hostname === 'ibrahimyuce07.github.io' ? '/callouts2' : '';
 const cleanPath = window.location.pathname.replace(baseUrl, '');
 const sessionId = cleanPath.substring(1);
@@ -57,9 +58,11 @@ const wsHost = hostname === 'ibrahimyuce07.github.io' ?
     `${wsProtocol}//${window.location.host}`;
 
 const ws = new WebSocket(`${wsHost}/${sessionId}`);
+*/
 let userColor = '#ff0000';
 
-// Add active users container to drawing controls
+// Add active users container to drawing controls - temporarily disabled
+/*
 const activeUsersContainer = document.createElement('div');
 activeUsersContainer.className = 'active-users';
 document.querySelector('.drawing-controls').appendChild(activeUsersContainer);
@@ -130,8 +133,11 @@ ws.onmessage = (event) => {
             break;
     }
 };
+*/
 
 function addActiveUser(name, color) {
+    // Temporarily disabled
+    /*
     const userDiv = document.createElement('div');
     userDiv.className = 'active-user';
     userDiv.innerHTML = `
@@ -140,14 +146,18 @@ function addActiveUser(name, color) {
     `;
     activeUsers.set(color, userDiv);
     activeUsersContainer.appendChild(userDiv);
+    */
 }
 
 function removeUserByColor(color) {
+    // Temporarily disabled
+    /*
     const userDiv = activeUsers.get(color);
     if (userDiv) {
         userDiv.remove();
         activeUsers.delete(color);
     }
+    */
 }
 
 let isDrawing = false;
@@ -250,7 +260,9 @@ function draw(e) {
     mapDrawings.set(currentMapName, drawings);
 
     // Broadcast to other users
+    /*
     ws.send(JSON.stringify(drawingData));
+    */
 
     currentX = coords.x;
     currentY = coords.y;
@@ -285,10 +297,12 @@ brushSize.addEventListener('input', (e) => {
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     mapDrawings.delete(currentMapName);
+    /*
     ws.send(JSON.stringify({
         type: 'clear',
         mapName: currentMapName
     }));
+    */
 });
 
 // Add share button to controls
