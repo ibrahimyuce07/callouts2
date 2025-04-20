@@ -14,7 +14,16 @@
       <div class="modal-content">
         <button id="closeModal" class="close-button">&times;</button>
         <h2 id="modalTitle"></h2>
-        <img id="modalImage" alt="">
+        <div class="canvas-container">
+          <img id="modalImage" alt="">
+          <canvas id="drawingCanvas" class="active"></canvas>
+        </div>
+        <div class="drawing-controls">
+          <button id="drawButton" class="tool-button active">Draw</button>
+          <input type="color" id="colorPicker" value="#ff0000">
+          <input type="range" id="brushSize" min="1" max="20" value="3">
+          <button id="clearButton" class="tool-button">Clear Drawing</button>
+        </div>
       </div>
     </div>
 

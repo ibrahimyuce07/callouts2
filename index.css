@@ -124,12 +124,12 @@ button:focus-visible {
   border-radius: 8px;
   width: 95%;
   height: 95vh;
-  max-height: 95vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
   position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .modal-content h2 {
@@ -167,6 +167,76 @@ button:focus-visible {
 
 .close-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.canvas-container {
+  position: relative;
+  margin: 1rem 0;
+  width: fit-content;
+}
+
+.canvas-container img {
+  display: block;
+  max-width: none;
+  width: auto;
+  height: auto;
+}
+
+#drawingCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+#drawingCanvas:not(.active) {
+  pointer-events: none;
+}
+
+.drawing-controls {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #1a1a1a;
+  border-radius: 8px;
+  margin-top: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.tool-button {
+  background: #2a2a2a;
+  color: #e1e1e1;
+  border: 1px solid #404040;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tool-button:hover {
+  background: #404040;
+}
+
+.tool-button.active {
+  background: #45a049;
+  border-color: #45a049;
+}
+
+#colorPicker {
+  width: 50px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+#brushSize {
+  width: 100px;
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: light) {

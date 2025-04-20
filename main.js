@@ -25,7 +25,17 @@ const mapGrid = document.getElementById('mapGrid');
 const modalOverlay = document.getElementById('modalOverlay');
 const modalTitle = document.getElementById('modalTitle');
 const modalImage = document.getElementById('modalImage');
+const canvas = document.getElementById('drawingCanvas');
+const ctx = canvas.getContext('2d');
 const closeButton = document.getElementById('closeModal');
+const drawButton = document.getElementById('drawButton');
+const colorPicker = document.getElementById('colorPicker');
+const brushSize = document.getElementById('brushSize');
+const clearButton = document.getElementById('clearButton');
+
+let isDrawing = false;
+let currentX = 0;
+let currentY = 0;
 
 // Create map cards
 maps.forEach(map => {
@@ -43,22 +53,89 @@ maps.forEach(map => {
 
 // Modal functions
 function openModal(map) {
-    modalTitle.textContent = `${map.name} Callouts`;
+    //modalTitle.textContent = `${map.name} Callouts`;
     modalImage.src = map.image;
     modalImage.alt = `${map.name} callouts`;
     modalOverlay.style.display = 'flex';
+    
+    // Reset canvas size when modal opens
+    modalImage.onload = () => {
+        canvas.width = modalImage.naturalWidth;
+        canvas.height = modalImage.naturalHeight;
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = brushSize.value;
+        ctx.lineCap = 'round';
+        drawButton.classList.add('active');
+        canvas.classList.add('active');
+    };
 }
 
-function closeModal() {
+function getScaledCoordinates(e, rect) {
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+
+// Drawing functions
+function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const coords = getScaledCoordinates(e, rect);
+    currentX = coords.x;
+    currentY = coords.y;
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const coords = getScaledCoordinates(e, rect);
+
+    ctx.beginPath();
+    ctx.moveTo(currentX, currentY);
+    ctx.lineTo(coords.x, coords.y);
+    ctx.stroke();
+
+    currentX = coords.x;
+    currentY = coords.y;
+}
+
+function stopDrawing() {
+    isDrawing = false;
+}
+
+// Event listeners
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mouseout', stopDrawing);
+
+// Tool button events
+drawButton.addEventListener('click', () => {
+    drawButton.classList.toggle('active');
+    canvas.classList.toggle('active');
+});
+
+colorPicker.addEventListener('change', (e) => {
+    ctx.strokeStyle = e.target.value;
+});
+
+brushSize.addEventListener('input', (e) => {
+    ctx.lineWidth = e.target.value;
+});
+
+clearButton.addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Close modal events
+closeButton.addEventListener('click', () => {
     modalOverlay.style.display = 'none';
-}
+});
 
-// Close modal when clicking close button
-closeButton.addEventListener('click', closeModal);
-
-// Close modal when clicking outside
 modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) {
-        closeModal();
+        modalOverlay.style.display = 'none';
     }
 });
