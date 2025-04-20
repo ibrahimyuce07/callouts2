@@ -35,7 +35,8 @@ const clearButton = document.getElementById('clearButton');
 
 // WebSocket setup
 const sessionId = window.location.pathname.substring(1);
-const ws = new WebSocket(`ws://${window.location.host}/${sessionId}`);
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const ws = new WebSocket(`${protocol}//${window.location.host}/${sessionId}`);
 let userColor = '#ff0000';
 
 // Add active users container to drawing controls
